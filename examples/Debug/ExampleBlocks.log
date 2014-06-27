@@ -1,0 +1,31 @@
+﻿生成启动时间为 2014/6/1 22:20:10。
+     1>项目“D:\c++\rvo2-2.0.1\RVO2\examples\ExampleBlocks.vcxproj”在节点 2 上(Build 个目标)。
+     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V120\Microsoft.CppBuild.targets(381,5): warning MSB8028: The intermediate directory (Debug\) contains files shared from another project (ExampleCircle.vcxproj, ExampleRoadmap.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+     1>ClCompile:
+         D:\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /I"D:\c++\rvo2-2.0.1\RVO2\include" /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D DEBUG /D _DEBUG /D _WINDOW /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Clock.cpp ExampleBlocks.cpp
+         ExampleBlocks.cpp
+     1>d:\c++\rvo2-2.0.1\rvo2\examples\exampleblocks.cpp(88): error C2365: “clock”: 重定义；以前的定义是“函数”
+                 d:\microsoft visual studio 12.0\vc\include\time.h(184) : 参见“clock”的声明
+     1>d:\c++\rvo2-2.0.1\rvo2\examples\exampleblocks.cpp(159): error C2228: “.GetTotalElapsedTime”的左边必须有类/结构/联合
+     1>d:\c++\rvo2-2.0.1\rvo2\examples\exampleblocks.cpp(160): error C2228: “.CalcTotalFPS”的左边必须有类/结构/联合
+     1>d:\c++\rvo2-2.0.1\rvo2\examples\exampleblocks.cpp(161): error C2228: “.RecordRenderCounter”的左边必须有类/结构/联合
+     1>d:\c++\rvo2-2.0.1\rvo2\examples\exampleblocks.cpp(162): error C2228: “.CalcRenderFPS”的左边必须有类/结构/联合
+     1>d:\c++\rvo2-2.0.1\rvo2\examples\exampleblocks.cpp(164): error C2228: “.TotalRealTime”的左边必须有类/结构/联合
+     1>d:\c++\rvo2-2.0.1\rvo2\examples\exampleblocks.cpp(166): error C2228: “.TotalFPS”的左边必须有类/结构/联合
+     1>d:\c++\rvo2-2.0.1\rvo2\examples\exampleblocks.cpp(168): error C2228: “.RenderFPS”的左边必须有类/结构/联合
+     1>d:\c++\rvo2-2.0.1\rvo2\examples\exampleblocks.cpp(170): error C2228: “.UpdateFPS”的左边必须有类/结构/联合
+     1>d:\c++\rvo2-2.0.1\rvo2\examples\exampleblocks.cpp(240): warning C4305: “参数”: 从“double”到“FLOAT”截断
+     1>d:\c++\rvo2-2.0.1\rvo2\examples\exampleblocks.cpp(246): warning C4244: “初始化”: 从“const float”转换到“UINT32”，可能丢失数据
+     1>d:\c++\rvo2-2.0.1\rvo2\examples\exampleblocks.cpp(253): error C2228: “.GetRenderElaspedTime”的左边必须有类/结构/联合
+     1>d:\c++\rvo2-2.0.1\rvo2\examples\exampleblocks.cpp(323): error C2228: “.RecordUpdateCounter”的左边必须有类/结构/联合
+     1>d:\c++\rvo2-2.0.1\rvo2\examples\exampleblocks.cpp(324): error C2228: “.CalcUpdateFPS”的左边必须有类/结构/联合
+     1>d:\c++\rvo2-2.0.1\rvo2\examples\exampleblocks.cpp(327): error C2228: “.GetUpdateElaspedTime”的左边必须有类/结构/联合
+         正在生成代码...
+         正在编译...
+         Clock.cpp
+         正在生成代码...
+     1>已完成生成项目“D:\c++\rvo2-2.0.1\RVO2\examples\ExampleBlocks.vcxproj”(Build 个目标)的操作 - 失败。
+
+生成失败。
+
+已用时间 00:00:00.95

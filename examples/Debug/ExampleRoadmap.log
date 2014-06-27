@@ -1,0 +1,15 @@
+﻿生成启动时间为 2014/6/2 1:06:51。
+     1>项目“D:\c++\rvo2-2.0.1\RVO2\examples\ExampleRoadmap.vcxproj”在节点 2 上(Build 个目标)。
+     1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V120\Microsoft.CppBuild.targets(381,5): warning MSB8028: The intermediate directory (Debug\) contains files shared from another project (ExampleBlocks.vcxproj, ExampleCircle.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+     1>Link:
+         ExampleRoadmap.vcxproj -> D:\c++\rvo2-2.0.1\RVO2\Debug\ExampleRoadmap.exe
+       PostBuildEvent:
+         xcopy "D:\c++\rvo2-2.0.1\RVO2\Debug\ExampleRoadmap.exe" "D:\c++\rvo2-2.0.1\RVO2\bin\" /Y
+         :VCEnd
+         D:\c++\rvo2-2.0.1\RVO2\Debug\ExampleRoadmap.exe
+         复制了 1 个文件
+     1>已完成生成项目“D:\c++\rvo2-2.0.1\RVO2\examples\ExampleRoadmap.vcxproj”(Build 个目标)的操作。
+
+生成成功。
+
+已用时间 00:00:00.43
