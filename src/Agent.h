@@ -117,6 +117,7 @@ namespace RVO {
 		std::vector<std::pair<float, const Obstacle *> > obstacleNeighbors_;
 		std::vector<Line> orcaLines_;
 		Vector2 position_;
+		Vector2 mapPosition_;
 		Vector2 prefVelocity_;
 		float radius_;
 		RVOSimulator *sim_;
@@ -128,6 +129,7 @@ namespace RVO {
 
 		friend class KdTree;
 		friend class RVOSimulator;
+		friend class DensityMap;
 	};
 
 	/**
