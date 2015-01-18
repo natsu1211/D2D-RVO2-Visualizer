@@ -68,6 +68,7 @@
 #include <iostream>
 #include <vector>
 #include <fstream>
+
 #ifdef _OPENMP
 #include <omp.h>
 #endif
@@ -75,6 +76,7 @@
 #include "RVO.h"
 #include "RVOBlocksRender.h"
 #include "Clock.h"
+#include "DensityMap.h"
 
 #ifndef M_PI
 const float M_PI = 3.14159265358979323846f;
@@ -86,8 +88,9 @@ RVORender app;
 /* Create a new simulator instance. */
 RVO::RVOSimulator *sim = new RVO::RVOSimulator();
 Clock clock2;
-const int numAgent = 1000;
+DensityMap dmap;
 std::ofstream fileOut;
+long frameCount = 0;
 void setupScenario(RVO::RVOSimulator *sim)
 {
 	/* Seed the random number generator. */
@@ -97,32 +100,47 @@ void setupScenario(RVO::RVOSimulator *sim)
 	sim->setTimeStep(0.25f);
 
 	/* Specify the default parameters for agents that are subsequently added. */
-	sim->setAgentDefaults(15.0f, 10, 5.0f, 5.0f, 2.0f, 2.0f);
+	sim->setAgentDefaults(15.0f, 10, 10.0f, 10.0f, 1.2f, 2.0f);
 
 	/*
 	 * Add agents, specifying their start position, and store their goals on the
 	 * opposite side of the environment.
 	 */
-	for (size_t i = 0; i < 5; ++i) {
-		for (size_t j = 0; j < 5; ++j) {
-			sim->addAgent(RVO::Vector2(55.0f + i * 10.0f,  55.0f + j * 10.0f));
-			goals.push_back(RVO::Vector2(-75.0f, -75.0f));
+	
+	for (size_t i = 0; i < 20; ++i) {
+for (size_t j = 0; j < 15; ++j) {
+sim->addAgent(RVO::Vector2(100.0f + i * 3.0f,  22.5f - j * 3.0f));
+goals.push_back(RVO::Vector2(-130.0f, 0.0f));
 
-			sim->addAgent(RVO::Vector2(-55.0f - i * 10.0f,  55.0f + j * 10.0f));
-			goals.push_back(RVO::Vector2(75.0f, -75.0f));
+sim->addAgent(RVO::Vector2(22.5f - j * 3.0f, 100.0f + i * 3.0f));
+goals.push_back(RVO::Vector2(0.0f, -130.0f));
+}
+}
+	/*
+	for (size_t i = 0; i < 20; ++i) {
+		for (size_t j = 0; j < 25; ++j) {
+			sim->addAgent(RVO::Vector2(90.0f + i * 3.0f, 30.0f - j * 3.0f));
+			goals.push_back(RVO::Vector2(-120.0f, 0.0f));
+			
+			sim->addAgent(RVO::Vector2(30.0f - j * 3.0f , - 90.0f - i * 3.0f));
+			goals.push_back(RVO::Vector2(0.0f, 120.0f));
+			
+			sim->addAgent(RVO::Vector2(-90.0f - i * 3.0f, 30.0f - j * 3.0f));
+			goals.push_back(RVO::Vector2(120.0f, 0.0f));
 
-			sim->addAgent(RVO::Vector2(55.0f + i * 10.0f, -55.0f - j * 10.0f));
-			goals.push_back(RVO::Vector2(-75.0f, 75.0f));
+			sim->addAgent(RVO::Vector2(30.0f - j * 3.0f, 90.0f + i * 3.0f));
+			goals.push_back(RVO::Vector2(0.0f, -120.0f));
+			
 
-			sim->addAgent(RVO::Vector2(-55.0f - i * 10.0f, -55.0f - j * 10.0f));
-			goals.push_back(RVO::Vector2(75.0f, 75.0f));
 		}
 	}
-
+	*/
 	/*
 	 * Add (polygonal) obstacles, specifying their vertices in counterclockwise
 	 * order.
 	 */
+
+	/*
 	std::vector<RVO::Vector2> obstacle1, obstacle2, obstacle3, obstacle4;
 
 	obstacle1.push_back(RVO::Vector2(-10.0f, 40.0f));
@@ -139,11 +157,47 @@ void setupScenario(RVO::RVOSimulator *sim)
 	obstacle3.push_back(RVO::Vector2(40.0f, -40.0f));
 	obstacle3.push_back(RVO::Vector2(40.0f, -10.0f));
 	obstacle3.push_back(RVO::Vector2(10.0f, -10.0f));
+	
 
 	obstacle4.push_back(RVO::Vector2(-10.0f, -40.0f));
 	obstacle4.push_back(RVO::Vector2(-10.0f, -10.0f));
 	obstacle4.push_back(RVO::Vector2(-40.0f, -10.0f));
 	obstacle4.push_back(RVO::Vector2(-40.0f, -40.0f));
+	*/
+	
+	std::vector<RVO::Vector2> obstacle1, obstacle2, obstacle3, obstacle4;
+	
+	
+	//left-lower
+	
+	obstacle1.push_back(RVO::Vector2(-30.0f, 240.0f));
+	obstacle1.push_back(RVO::Vector2(-320.0f, 240.0f));
+	obstacle1.push_back(RVO::Vector2(-320.0f, 30.0f));
+	obstacle1.push_back(RVO::Vector2(-30.0f, 30.0f));
+	
+	//right-lower
+	
+	obstacle2.push_back(RVO::Vector2(30.0f, 240.0f));
+	obstacle2.push_back(RVO::Vector2(30.0f, 30.0f));
+	obstacle2.push_back(RVO::Vector2(320.0f, 30.0f));
+	obstacle2.push_back(RVO::Vector2(320.0f, 240.0f));
+
+	//right-upper
+	obstacle3.push_back(RVO::Vector2(30.0f, -240.0f));
+	obstacle3.push_back(RVO::Vector2(320.0f, -240.0f));
+	obstacle3.push_back(RVO::Vector2(320.0f, -30.0f));
+	obstacle3.push_back(RVO::Vector2(30.0f, -30.0f));
+
+	//left-upper
+	obstacle4.push_back(RVO::Vector2(-30.0f, -240.0f));
+	obstacle4.push_back(RVO::Vector2(-30.0f, -30.0f));
+	obstacle4.push_back(RVO::Vector2(-320.0f, -30.0f));
+	obstacle4.push_back(RVO::Vector2(-320.0f, -240.0f));
+
+
+	
+	
+	
 
 	sim->addObstacle(obstacle1);
 	sim->addObstacle(obstacle2);
@@ -161,18 +215,18 @@ void updateVisualization(RVO::RVOSimulator *sim)
 	clock2.RecordRenderCounter();
 	clock2.CalcRenderFPS();
 
-	fileOut.open("d://block.txt", std::ofstream::app);
+	fileOut.open("d://4wayd.txt", std::ofstream::app);
 	fileOut << clock2.UpdateFPS() << std::endl;
 	fileOut.close();
 
-	static WCHAR time[30];
-	swprintf_s<30>(time, L"Simulation Time: %5.2f", clock2.TotalRealTime());
-	static WCHAR totalfps[30];
-	swprintf_s<30>(totalfps, L"Total FPS: %3.0f", clock2.TotalFPS());
-	static WCHAR renderfps[30];
-	swprintf_s<30>(renderfps, L"Render FPS: %3.0f", clock2.RenderFPS());
-	static WCHAR updatefps[30];
-	swprintf_s<30>(updatefps, L"Update FPS: %3.0f", clock2.UpdateFPS());
+	static WCHAR time[40];
+	swprintf_s<40>(time, L"Simulation Time: %5.2f", clock2.TotalRealTime());
+	static WCHAR totalfps[40];
+	swprintf_s<40>(totalfps, L"Total FPS: %3.0f", clock2.TotalFPS());
+	static WCHAR renderfps[40];
+	swprintf_s<40>(renderfps, L"Render FPS: %3.0f", clock2.RenderFPS());
+	static WCHAR updatefps[40];
+	swprintf_s<40>(updatefps, L"Update FPS: %3.0f", clock2.UpdateFPS());
 
 	static FLOAT dpiX, dpiY;
 	app.m_pDirect2dFactory->GetDesktopDpi(&dpiX, &dpiY);
@@ -200,6 +254,7 @@ void updateVisualization(RVO::RVOSimulator *sim)
 			);
 	}
 	*/
+	/*
 	app.m_pCompatibleRenderTarget->DrawText(
 		time,
 		ARRAYSIZE(time) - 1,
@@ -228,151 +283,116 @@ void updateVisualization(RVO::RVOSimulator *sim)
 		D2D1::RectF(0, 60, wndWidth, wndHeight),
 		app.m_pLightSlateGrayBrush
 		);
+		*/
 	//physical pixel to dip
 	app.m_pCompatibleRenderTarget->SetTransform(D2D1::Matrix3x2F::Translation(wndWidth / 2 * 96.f / dpiX, wndHeight / 2 * 96.f / dpiY));
 
-	static ID2D1SolidColorBrush* brushArray[4] = { nullptr };
+	static ID2D1SolidColorBrush* brushArray[2] = { nullptr };
 	app.m_pRenderTarget->CreateSolidColorBrush(
-		D2D1::ColorF(D2D1::ColorF::LightSkyBlue),
+		D2D1::ColorF(D2D1::ColorF::Blue),
 		&brushArray[0]
 		);
 	app.m_pRenderTarget->CreateSolidColorBrush(
-		D2D1::ColorF(D2D1::ColorF::Purple),
+		D2D1::ColorF(D2D1::ColorF::Red),
 		&brushArray[1]
 		);
+	/*
 	app.m_pRenderTarget->CreateSolidColorBrush(
-		D2D1::ColorF(D2D1::ColorF::MediumVioletRed),
+		D2D1::ColorF(D2D1::ColorF::Green),
 		&brushArray[2]
 		);
 	app.m_pRenderTarget->CreateSolidColorBrush(
-		D2D1::ColorF(D2D1::ColorF::SeaGreen),
+		D2D1::ColorF(D2D1::ColorF::Purple),
 		&brushArray[3]
 		);
+	*/
+
 
 	/* Output the current position of all the agents. */
 	for (size_t i = 0; i < sim->getNumAgents(); ++i) {
 		D2D1_ELLIPSE ellipse = D2D1::Ellipse(
 			D2D1::Point2F(sim->getAgentPosition(i).x(), sim->getAgentPosition(i).y()),
-			2.0f,
-			2.0f
+			1.2f,
+			1.2f
 			);
+		
+		if (0 == i % 2)
+		    app.m_pCompatibleRenderTarget->FillEllipse(ellipse, brushArray[0]);
+		else if (1 == i % 2)
+			app.m_pCompatibleRenderTarget->FillEllipse(ellipse, brushArray[1]);
+		/*
 		if (0 == i % 4)
-		    app.m_pCompatibleRenderTarget->FillEllipse(ellipse, brushArray[0]/*app.m_pCornflowerBlueBrush*/);
+			app.m_pCompatibleRenderTarget->FillEllipse(ellipse, brushArray[0]);
 		else if (1 == i % 4)
-			app.m_pCompatibleRenderTarget->FillEllipse(ellipse, brushArray[1]/*app.m_pCornflowerBlueBrush*/);
+			app.m_pCompatibleRenderTarget->FillEllipse(ellipse, brushArray[1]);
 		else if (2 == i % 4)
-			app.m_pCompatibleRenderTarget->FillEllipse(ellipse, brushArray[2]/*app.m_pCornflowerBlueBrush*/);
+			app.m_pCompatibleRenderTarget->FillEllipse(ellipse, brushArray[2]);
 		else if (3 == i % 4)
-			app.m_pCompatibleRenderTarget->FillEllipse(ellipse, brushArray[3]/*app.m_pCornflowerBlueBrush*/);
+			app.m_pCompatibleRenderTarget->FillEllipse(ellipse, brushArray[3]);
+			*/
 	}
 
 	//draw obstacles 
-	static ID2D1SolidColorBrush* pBlackBrush = nullptr ;
 	
+	static ID2D1SolidColorBrush* pBlackBrush = nullptr ;
 	app.m_pRenderTarget->CreateSolidColorBrush(
 		D2D1::ColorF(D2D1::ColorF::Black),
 		&pBlackBrush
 		);
 	//obstacle1
 	app.m_pCompatibleRenderTarget->DrawLine(
-		D2D1::Point2F(-10, 40),
-		D2D1::Point2F(-40, 40),
+		D2D1::Point2F(-320, -30),
+		D2D1::Point2F(-30, -30),
 		pBlackBrush,
-		1.5f
+		1.0f
 		);
 	app.m_pCompatibleRenderTarget->DrawLine(
-		D2D1::Point2F(-40, 40),
-		D2D1::Point2F(-40, 10),
+		D2D1::Point2F(-30, -30),
+		D2D1::Point2F(-30, -240),
 		pBlackBrush,
-		1.5f
-		);
-	app.m_pCompatibleRenderTarget->DrawLine(
-		D2D1::Point2F(-40, 10),
-		D2D1::Point2F(-10, 10),
-		pBlackBrush,
-		1.5f
-		);
-	app.m_pCompatibleRenderTarget->DrawLine(
-		D2D1::Point2F(-10, 10),
-		D2D1::Point2F(-10, 40),
-		pBlackBrush,
-		1.5f
+		1.0f
 		);
 	//obstacle2
 	app.m_pCompatibleRenderTarget->DrawLine(
-		D2D1::Point2F(10, 40),
-		D2D1::Point2F(10, 10),
+		D2D1::Point2F(320, -30),
+		D2D1::Point2F(30, -30),
 		pBlackBrush,
-		1.5f
+		1.0f
 		);
 	app.m_pCompatibleRenderTarget->DrawLine(
-		D2D1::Point2F(10, 10),
-		D2D1::Point2F(40, 10),
+		D2D1::Point2F(30, -30),
+		D2D1::Point2F(30, -240),
 		pBlackBrush,
-		1.5f
-		);
-	app.m_pCompatibleRenderTarget->DrawLine(
-		D2D1::Point2F(40, 10),
-		D2D1::Point2F(40, 40),
-		pBlackBrush,
-		1.5f
-		);
-	app.m_pCompatibleRenderTarget->DrawLine(
-		D2D1::Point2F(40, 40),
-		D2D1::Point2F(10, 40),
-		pBlackBrush,
-		1.5f
+		1.0f
 		);
 	//obstacle3
 	app.m_pCompatibleRenderTarget->DrawLine(
-		D2D1::Point2F(10, -40),
-		D2D1::Point2F(40, -40),
+		D2D1::Point2F(-320, 30),
+		D2D1::Point2F(-30, 30),
 		pBlackBrush,
-		1.5f
+		1.0f
 		);
 	app.m_pCompatibleRenderTarget->DrawLine(
-		D2D1::Point2F(40, -40),
-		D2D1::Point2F(40, -10),
+		D2D1::Point2F(-30, 30),
+		D2D1::Point2F(-30, 240),
 		pBlackBrush,
-		1.5f
-		);
-	app.m_pCompatibleRenderTarget->DrawLine(
-		D2D1::Point2F(40, -10),
-		D2D1::Point2F(10, -10),
-		pBlackBrush,
-		1.5f
-		);
-	app.m_pCompatibleRenderTarget->DrawLine(
-		D2D1::Point2F(10, -10),
-		D2D1::Point2F(10, -40),
-		pBlackBrush,
-		1.5f
+		1.0f
 		);
 	//obstacle4
 	app.m_pCompatibleRenderTarget->DrawLine(
-		D2D1::Point2F(-10, -40),
-		D2D1::Point2F(-10, -10),
+		D2D1::Point2F(320, 30),
+		D2D1::Point2F(30, 30),
 		pBlackBrush,
-		1.5f
+		1.0f
 		);
 	app.m_pCompatibleRenderTarget->DrawLine(
-		D2D1::Point2F(-10, -10),
-		D2D1::Point2F(-40, -10),
+		D2D1::Point2F(30, 30),
+		D2D1::Point2F(30, 240),
 		pBlackBrush,
-		1.5f
+		1.0f
 		);
-	app.m_pCompatibleRenderTarget->DrawLine(
-		D2D1::Point2F(-40, -10),
-		D2D1::Point2F(-40, -40),
-		pBlackBrush,
-		1.5f
-		);
-	app.m_pCompatibleRenderTarget->DrawLine(
-		D2D1::Point2F(-40, -40),
-		D2D1::Point2F(-10, -40),
-		pBlackBrush,
-		1.5f
-		);
+		
+	
 	//copy off-screen buffer to on-screen buffer
 	D2D1_POINT_2U pt{ 0, 0 };
 	D2D1_RECT_U rct{ 0, 0, wndWidth, wndHeight };
@@ -418,7 +438,7 @@ bool reachedGoal(RVO::RVOSimulator *sim)
 {
 	/* Check if all agents have reached their goals. */
 	for (size_t i = 0; i < sim->getNumAgents(); ++i) {
-		if (RVO::absSq(sim->getAgentPosition(i) - goals[i]) > 18.0f * 18.0f) {
+		if (RVO::absSq(sim->getAgentPosition(i) - goals[i]) > 80.0f * 80.0f) {
 			return false;
 		}
 	}
@@ -455,17 +475,20 @@ int WINAPI WinMain(
 					clock2.RecordUpdateCounter();
 					clock2.CalcUpdateFPS();
 					setPreferredVelocities(sim);
+					dmap.seeForward();
 					sim->doStep();
+					dmap.CalcDensity();
 					clock2.GetUpdateElaspedTime();
 					updateVisualization(sim);
+					++frameCount;
 				}
 			}
 		}
 		CoUninitialize();
 	}
-	fileOut.open("d://block.txt", std::ofstream::app);
-	fileOut << clock2.TotalRealTime() << std::endl;
-	fileOut.close();
+	//fileOut.open("d://test.txt", std::ofstream::app);
+	//fileOut << frameCount << std::endl;
+	//fileOut.close();
 	delete sim;
 	return 0;
 }
