@@ -66,6 +66,7 @@
 #include <iostream>
 #include <vector>
 #include <fstream>
+
 #ifdef _OPENMP
 #include <omp.h>
 #endif
@@ -73,6 +74,7 @@
 #include "RVO.h"
 #include "RVOCircleRender.h"
 #include "Clock.h"
+#include "DensityMap.h"
 
 #ifndef M_PI
 const float M_PI = 3.14159265358979323846f;
@@ -84,26 +86,33 @@ RVORender app;
 /* Create a new simulator instance. */
 RVO::RVOSimulator *sim = new RVO::RVOSimulator();
 Clock clock;
+DensityMap dmap;
 std::ofstream fileOut;
-const int numAgent = 100;
+const int numAgent = 300;
 void setupScenario(RVO::RVOSimulator *sim)
 {
 	/* Specify the global time step of the simulation. */
 	sim->setTimeStep(0.25f);
 
 	/* Specify the default parameters for agents that are subsequently added. */
-	sim->setAgentDefaults(15.0f, 10, 10.0f, 10.0f, 2.0f, 2.0f);
+	sim->setAgentDefaults(15.0f, 10, 10.0f, 10.0f, 1.2f, 2.0f);
 
 	/*
 	 * Add agents, specifying their start position, and store their goals on the
 	 * opposite side of the environment.
 	 */
+
+	
 	for (size_t i = 0; i < numAgent; ++i) {
 		sim->addAgent(150.0f *
 			RVO::Vector2(std::cos(i * 2.0f * M_PI / numAgent),
 			std::sin(i * 2.0f * M_PI / numAgent)));
 		goals.push_back(-sim->getAgentPosition(i));
 	}
+	
+	
+
+
 }
 
 
@@ -115,10 +124,9 @@ void updateVisualization(RVO::RVOSimulator *sim)
 	clock.RecordRenderCounter();
 	clock.CalcRenderFPS();
 
-	
-	fileOut.open("d://circle.txt", std::ofstream::app);
-	fileOut << clock.UpdateFPS() << std::endl;
-	fileOut.close();
+	//fileOut.open("d://circle3000.txt", std::ofstream::app);
+	//fileOut << clock.UpdateFPS() << std::endl;
+	//fileOut.close();
 
 	static WCHAR time[30];
 	swprintf_s<30>(time, L"Simulation Time: %5.2f", clock.TotalRealTime());
@@ -134,7 +142,7 @@ void updateVisualization(RVO::RVOSimulator *sim)
 	app.m_pCompatibleRenderTarget->BeginDraw();
 	app.m_pCompatibleRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
 	app.m_pCompatibleRenderTarget->SetTransform(D2D1::Matrix3x2F::Identity());
-	
+	/*
 	for (int x = 0; x < wndWidth; x += 30)
 	{
 		app.m_pCompatibleRenderTarget->DrawLine(
@@ -154,6 +162,8 @@ void updateVisualization(RVO::RVOSimulator *sim)
 			1.0f
 			);
 	}
+	*/
+	/*
 	app.m_pCompatibleRenderTarget->DrawText(
 		time,
 		ARRAYSIZE(time) - 1,
@@ -182,7 +192,7 @@ void updateVisualization(RVO::RVOSimulator *sim)
 		D2D1::RectF(0, 60, wndWidth, wndHeight),
 		app.m_pLightSlateGrayBrush
 		);
-	
+	*/
 	//physical pixel to dip
 	app.m_pCompatibleRenderTarget->SetTransform(D2D1::Matrix3x2F::Translation(wndWidth / 2 * 96.f / dpiX, wndHeight / 2 * 96.f / dpiY));
 	static const float startColorRgb = 0.2f;//0.0 to 1.0
@@ -194,16 +204,36 @@ void updateVisualization(RVO::RVOSimulator *sim)
 	for (size_t i = 0; i < sim->getNumAgents(); ++i) {
 		D2D1_ELLIPSE ellipse = D2D1::Ellipse(
 			D2D1::Point2F(sim->getAgentPosition(i).x() , sim->getAgentPosition(i).y() ),
-			2.0f,
-			2.0f
+			1.2f,
+			1.2f
 			);
 		float rgb= startColorRgb + dColorRgb*i;
 		app.m_pRenderTarget->CreateSolidColorBrush(
-			D2D1::ColorF(D2D1::ColorF::ColorF(0.9, 1-rgb, rgb)),
+			D2D1::ColorF::ColorF(0.9, 1-rgb, rgb),
 			&brushArray[i]
 			);
 		app.m_pCompatibleRenderTarget->FillEllipse(ellipse, brushArray[i]/*app.m_pCornflowerBlueBrush*/);
 	}
+	/*visulize the density map*/
+	/*
+	ID2D1SolidColorBrush* densityBrush = nullptr;
+	for (int j = 0; j < 24; ++j)
+	{
+		for (int i = 0; i < 32; ++i)
+		{
+			D2D1_RECT_F rect = D2D1::RectF(i * 20 - 320, j * 20 - 240, i * 20 - 320 + 20, j * 20 - 240 + 20);
+			auto c = dmap.DMap[j][i] / 10.f >= 1 ? 1 : dmap.DMap[j][i] / 10.f;
+			app.m_pRenderTarget->CreateSolidColorBrush(
+				D2D1::ColorF::ColorF(c, 1.0-c, 0, 0.4),
+				&densityBrush
+				);
+			app.m_pCompatibleRenderTarget->FillRectangle(rect, densityBrush);
+			
+		}
+	}
+	*/
+	
+		
 	D2D1_POINT_2U pt{ 0, 0 };
 	D2D1_RECT_U rct{ 0, 0, wndWidth, wndHeight };
 	app.m_pBitmap->CopyFromRenderTarget(&pt, app.m_pCompatibleRenderTarget, &rct);
@@ -240,7 +270,7 @@ bool reachedGoal(RVO::RVOSimulator *sim)
 {
 	/* Check if all agents have reached their goals. */
 	for (size_t i = 0; i < sim->getNumAgents(); ++i) {
-		if (/*RVO::absSq(sim->getAgentPosition(i) - goals[i]) > FLT_EPSILON*/RVO::absSq(sim->getAgentPosition(i) - goals[i]) > sim->getAgentRadius(i) * sim->getAgentRadius(i)) {
+		if (RVO::absSq(sim->getAgentPosition(i) - goals[i]) > FLT_EPSILON/*RVO::absSq(sim->getAgentPosition(i) - goals[i]) > sim->getAgentRadius(i) * sim->getAgentRadius(i)*/) {
 			return false;
 		}
 	}
@@ -282,7 +312,9 @@ int WINAPI WinMain(
 						clock.RecordUpdateCounter();
 						clock.CalcUpdateFPS();
 						setPreferredVelocities(sim);
+						dmap.seeForward();
 						sim->doStep(); 
+						dmap.CalcDensity();
 						clock.GetUpdateElaspedTime();
 						updateVisualization(sim);
 						
@@ -294,9 +326,9 @@ int WINAPI WinMain(
 		
 		CoUninitialize();
 	}
-	fileOut.open("d://circle.txt", std::ofstream::app);
-	fileOut << clock.TotalRealTime() << std::endl;
-	fileOut.close();
+	//fileOut.open("d://circle2000d4.txt", std::ofstream::app);
+	//fileOut << clock.TotalRealTime() << std::endl;
+	//fileOut.close();
 	delete sim;
 	return 0;
 }

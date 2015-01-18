@@ -246,6 +246,7 @@ HRESULT RVORender::OnRender()
 		int width = static_cast<int>(rtSize.width);
 		int height = static_cast<int>(rtSize.height);
 
+		/*
 		for (int x = 0; x < width; x += 30)
 		{
 			m_pRenderTarget->DrawLine(
@@ -265,6 +266,7 @@ HRESULT RVORender::OnRender()
 				1.0f
 				);
 		}
+		*/
 
 		hr = m_pRenderTarget->EndDraw();
 	}
