@@ -163,7 +163,7 @@ void updateVisualization(RVO::RVOSimulator *sim)
 			);
 	}
 	*/
-	/*
+	
 	app.m_pCompatibleRenderTarget->DrawText(
 		time,
 		ARRAYSIZE(time) - 1,
@@ -192,7 +192,7 @@ void updateVisualization(RVO::RVOSimulator *sim)
 		D2D1::RectF(0, 60, wndWidth, wndHeight),
 		app.m_pLightSlateGrayBrush
 		);
-	*/
+	
 	//physical pixel to dip
 	app.m_pCompatibleRenderTarget->SetTransform(D2D1::Matrix3x2F::Translation(wndWidth / 2 * 96.f / dpiX, wndHeight / 2 * 96.f / dpiY));
 	static const float startColorRgb = 0.2f;//0.0 to 1.0
@@ -291,6 +291,7 @@ int WINAPI WinMain(
 	// by the process.
 	// The return value is ignored, because we want to continue running in the
 	// unlikely event that HeapSetInformation fails.
+	using namespace std::placeholders;
 	HeapSetInformation(NULL, HeapEnableTerminationOnCorruption, NULL, 0);
 	/* Set up the scenario. */
 	setupScenario(sim);
@@ -315,6 +316,7 @@ int WINAPI WinMain(
 						dmap.seeForward();
 						sim->doStep(); 
 						dmap.CalcDensity();
+						dmap.VelFromDensity(std::bind(&DensityMap::modelFunc2, &dmap, _1));
 						clock.GetUpdateElaspedTime();
 						updateVisualization(sim);
 						
