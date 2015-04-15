@@ -2,10 +2,20 @@
 #include "RVO.h"
 #include <cmath>
 
+
 extern RVO::RVOSimulator *sim;
 
 
-// look forword for 3 seconds
+void DensityMap::VelFromDensity(std::function<float(float)> velFunc)
+{
+	for (size_t i = 0; i < sim->getNumAgents(); ++i)
+	{
+		int tempY = static_cast<int>(sim->getAgentPosition(i).y() / gridLength) - 1 + 240 / gridLength;
+		int tempX = static_cast<int>(sim->getAgentPosition(i).x() / gridLength) - 1 + 320 / gridLength;
+		sim->setAgentMaxSpeed(i, velFunc(DMap[tempY][tempX] / (gridLength*gridLength)));
+	}
+}
+
 void DensityMap::CalcDensity()
 {
 #ifdef _OPENMP
