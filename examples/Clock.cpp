@@ -1,5 +1,7 @@
 #include "Clock.h"
 
+
+using namespace LL;
 void Clock::RecordUpdateCounter()
 {
 	// get time from Windows
