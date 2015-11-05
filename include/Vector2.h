@@ -64,12 +64,20 @@
 #include <cmath>
 #include <ostream>
 
+
+/**
+* \brief       A sufficiently small positive number.
+*/
+const float RVO_EPSILON = 0.00001f;
+const double pi = std::acos(-1);
+
 namespace RVO {
 	/**
 	 * \brief      Defines a two-dimensional vector.
 	 */
 	class Vector2 {
 	public:
+		//
 		/**
 		 * \brief      Constructs and initializes a two-dimensional vector instance
 		 *             to (0.0, 0.0).
@@ -260,7 +268,7 @@ namespace RVO {
 			return *this;
 		}
 
-	private:
+	public:
 		float x_;
 		float y_;
 	};
@@ -350,6 +358,59 @@ namespace RVO {
 	{
 		return vector / abs(vector);
 	}
+
+	inline double cosValue(const Vector2 &vec1, const Vector2 &vec2)
+	{
+		return vec1*vec2 / (abs(vec1)*abs(vec2));
+	}
+
+	//return the distance to collision point
+	inline double Intersect(const Vector2 &pos, const Vector2 &d, const Vector2 &centre, const float r)
+	{
+		Vector2 op = centre - pos;
+		double b = d*op;
+		double d4 = b * b - op*op + r * r;
+
+		// see if the ray is intersectd with sphere
+	
+		if (d4 >= 0.0)
+		{
+			double sqrtD4 = sqrt(d4);
+			double s1 = b - sqrtD4;
+			double s2 = b + sqrtD4;
+			if (s1 > RVO_EPSILON)
+				return s1;
+			else if (s2 > RVO_EPSILON)
+				return s2;
+		}
+		//else no solution
+		return 0.0;
+	}
+	//positive theta means clock-wise rotation, which is different to the common usage
+	inline Vector2 Rotate(const Vector2 &vec, int theta)
+	{
+		double rad = theta / 180 * pi;
+		return (Vector2::Vector2(vec.x()*cos(rad) + vec.y()*sin(rad), -vec.x()*sin(rad) + vec.y()*cos(rad)));
+	}
+
+	class Segment
+	{
+	public:
+		Vector2 start;
+		Vector2 end;
+		Segment(float x0, float y0, float x1, float y1) 
+		{
+			start = Vector2(x0, y0);
+			end = Vector2(x1, y1);
+		}
+		Segment(Vector2 &start, Vector2 &end)
+		{
+			this->start = start;
+			this->end = end;
+		}
+	};
 }
+
+
 
 #endif /* RVO_VECTOR2_H_ */
