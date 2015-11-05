@@ -16,12 +16,18 @@
     <ClCompile Include="RVOBlocksRender.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DensityMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Clock.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="RVOBlocksRender.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DensityMap.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
