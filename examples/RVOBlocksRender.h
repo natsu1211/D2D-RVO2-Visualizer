@@ -102,6 +102,7 @@ public:
 	ID2D1SolidColorBrush *m_pBrush;
 	IDWriteFactory *m_pDWriteFactory;
 	IDWriteTextFormat *m_pTextFormat;
+	ID2D1PathGeometry *m_pPathGeometry;
 };
 
 #endif // _RVO_BLCOKS_RENDER_H_

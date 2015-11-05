@@ -7,6 +7,7 @@
 // Windows Header Files:
 #include <windows.h>
 
+
 // C RunTime Header Files:
 #include <stdlib.h>
 #include <malloc.h>
@@ -102,6 +103,7 @@ public:
 	ID2D1SolidColorBrush *m_pBrush;
 	IDWriteFactory *m_pDWriteFactory;
 	IDWriteTextFormat *m_pTextFormat;
+	ID2D1PathGeometry *m_pPathGeometry;
 };
 
 #endif // _RVO_CIRCLE_RENDER_H_

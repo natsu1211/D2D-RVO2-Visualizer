@@ -13,7 +13,8 @@ m_pCompatibleRenderTarget(NULL),
 m_pLightSlateGrayBrush(NULL),
 m_pCornflowerBlueBrush(NULL),
 m_pDWriteFactory(NULL),
-m_pTextFormat(NULL)
+m_pTextFormat(NULL),
+m_pPathGeometry(NULL)
 {
 }
 
@@ -29,6 +30,7 @@ RVORender::~RVORender()
 	SafeRelease(&m_pCornflowerBlueBrush);
 	SafeRelease(&m_pDWriteFactory);
 	SafeRelease(&m_pTextFormat);
+	SafeRelease(&m_pPathGeometry);
 }
 
 // Creates the application window and device-independent
