@@ -29,7 +29,7 @@ public:
 	int minDensity;
 	
 public:
-	
+	#undef min
 	float modelFunc1(float density)
 	{
 		return 1.272*pow(density, -0.7954);
@@ -47,7 +47,7 @@ public:
 
 	float modelFunc4(float density)
 	{
-		return -0.26 + sqrt(2.4 / (density - 0.13));
+		return -0.26 + sqrt(2.4 / (density - 0.13) > 0.0f?2.4 / (density - 0.13):0.0f);
 	}
 
 	float modelFunc5(float density)
