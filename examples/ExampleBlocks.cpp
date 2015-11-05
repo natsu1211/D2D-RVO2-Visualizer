@@ -100,23 +100,25 @@ void setupScenario(RVO::RVOSimulator *sim)
 	sim->setTimeStep(0.25f);
 
 	/* Specify the default parameters for agents that are subsequently added. */
-	sim->setAgentDefaults(15.0f, 10, 10.0f, 10.0f, 1.2f, 2.0f);
+	sim->setAgentDefaults(15.0f, 5, 10.0f, 10.0f, 1.2f, 1.4f);
 
 	/*
 	 * Add agents, specifying their start position, and store their goals on the
 	 * opposite side of the environment.
 	 */
 	
-	for (size_t i = 0; i < 20; ++i) {
-for (size_t j = 0; j < 15; ++j) {
-sim->addAgent(RVO::Vector2(100.0f + i * 3.0f,  22.5f - j * 3.0f));
-goals.push_back(RVO::Vector2(-130.0f, 0.0f));
-
-sim->addAgent(RVO::Vector2(22.5f - j * 3.0f, 100.0f + i * 3.0f));
-goals.push_back(RVO::Vector2(0.0f, -130.0f));
-}
-}
 	/*
+	for (size_t i = 0; i < 20; ++i) {
+		for (size_t j = 0; j < 15; ++j) {
+			sim->addAgent(RVO::Vector2(100.0f + i * 3.0f, 22.5f - j * 3.0f));
+			goals.push_back(RVO::Vector2(-130.0f, 0.0f));
+
+			sim->addAgent(RVO::Vector2(22.5f - j * 3.0f, 100.0f + i * 3.0f));
+			goals.push_back(RVO::Vector2(0.0f, -130.0f));
+		}
+	}
+	*/
+	
 	for (size_t i = 0; i < 20; ++i) {
 		for (size_t j = 0; j < 25; ++j) {
 			sim->addAgent(RVO::Vector2(90.0f + i * 3.0f, 30.0f - j * 3.0f));
@@ -134,36 +136,12 @@ goals.push_back(RVO::Vector2(0.0f, -130.0f));
 
 		}
 	}
-	*/
+	
 	/*
 	 * Add (polygonal) obstacles, specifying their vertices in counterclockwise
 	 * order.
 	 */
 
-	/*
-	std::vector<RVO::Vector2> obstacle1, obstacle2, obstacle3, obstacle4;
-
-	obstacle1.push_back(RVO::Vector2(-10.0f, 40.0f));
-	obstacle1.push_back(RVO::Vector2(-40.0f, 40.0f));
-	obstacle1.push_back(RVO::Vector2(-40.0f, 10.0f));
-	obstacle1.push_back(RVO::Vector2(-10.0f, 10.0f));
-
-	obstacle2.push_back(RVO::Vector2(10.0f, 40.0f));
-	obstacle2.push_back(RVO::Vector2(10.0f, 10.0f));
-	obstacle2.push_back(RVO::Vector2(40.0f, 10.0f));
-	obstacle2.push_back(RVO::Vector2(40.0f, 40.0f));
-
-	obstacle3.push_back(RVO::Vector2(10.0f, -40.0f));
-	obstacle3.push_back(RVO::Vector2(40.0f, -40.0f));
-	obstacle3.push_back(RVO::Vector2(40.0f, -10.0f));
-	obstacle3.push_back(RVO::Vector2(10.0f, -10.0f));
-	
-
-	obstacle4.push_back(RVO::Vector2(-10.0f, -40.0f));
-	obstacle4.push_back(RVO::Vector2(-10.0f, -10.0f));
-	obstacle4.push_back(RVO::Vector2(-40.0f, -10.0f));
-	obstacle4.push_back(RVO::Vector2(-40.0f, -40.0f));
-	*/
 	
 	std::vector<RVO::Vector2> obstacle1, obstacle2, obstacle3, obstacle4;
 	
@@ -199,11 +177,11 @@ goals.push_back(RVO::Vector2(0.0f, -130.0f));
 	
 	
 
-	sim->addObstacle(obstacle1);
-	sim->addObstacle(obstacle2);
-	sim->addObstacle(obstacle3);
-	sim->addObstacle(obstacle4);
-
+	//sim->addObstacle(obstacle1);
+	//sim->addObstacle(obstacle2);
+	//sim->addObstacle(obstacle3);
+	//sim->addObstacle(obstacle4);
+	
 	/* Process the obstacles so that they are accounted for in the simulation. */
 	sim->processObstacles();
 }
@@ -215,18 +193,20 @@ void updateVisualization(RVO::RVOSimulator *sim)
 	clock2.RecordRenderCounter();
 	clock2.CalcRenderFPS();
 
-	fileOut.open("d://4wayd.txt", std::ofstream::app);
+	fileOut.open("d://result721//cross-2d.txt", std::ofstream::app);
 	fileOut << clock2.UpdateFPS() << std::endl;
 	fileOut.close();
 
 	static WCHAR time[40];
-	swprintf_s<40>(time, L"Simulation Time: %5.2f", clock2.TotalRealTime());
+	swprintf_s<40>(time, L"Wallclock Time: %5.2f", clock2.TotalRealTime());
 	static WCHAR totalfps[40];
 	swprintf_s<40>(totalfps, L"Total FPS: %3.0f", clock2.TotalFPS());
 	static WCHAR renderfps[40];
 	swprintf_s<40>(renderfps, L"Render FPS: %3.0f", clock2.RenderFPS());
 	static WCHAR updatefps[40];
 	swprintf_s<40>(updatefps, L"Update FPS: %3.0f", clock2.UpdateFPS());
+	static WCHAR globalTime[40];
+	swprintf_s<40>(globalTime, L"Simulation Time: %5.2f", sim->getGlobalTime());
 
 	static FLOAT dpiX, dpiY;
 	app.m_pDirect2dFactory->GetDesktopDpi(&dpiX, &dpiY);
@@ -254,7 +234,7 @@ void updateVisualization(RVO::RVOSimulator *sim)
 			);
 	}
 	*/
-	/*
+	
 	app.m_pCompatibleRenderTarget->DrawText(
 		time,
 		ARRAYSIZE(time) - 1,
@@ -283,11 +263,18 @@ void updateVisualization(RVO::RVOSimulator *sim)
 		D2D1::RectF(0, 60, wndWidth, wndHeight),
 		app.m_pLightSlateGrayBrush
 		);
-		*/
+	app.m_pCompatibleRenderTarget->DrawText(
+		globalTime,
+		ARRAYSIZE(globalTime) - 1,
+		app.m_pTextFormat,
+		D2D1::RectF(0, 80, wndWidth, wndHeight),
+		app.m_pLightSlateGrayBrush
+		);
+	
 	//physical pixel to dip
 	app.m_pCompatibleRenderTarget->SetTransform(D2D1::Matrix3x2F::Translation(wndWidth / 2 * 96.f / dpiX, wndHeight / 2 * 96.f / dpiY));
 
-	static ID2D1SolidColorBrush* brushArray[2] = { nullptr };
+	static ID2D1SolidColorBrush* brushArray[4] = { nullptr };
 	app.m_pRenderTarget->CreateSolidColorBrush(
 		D2D1::ColorF(D2D1::ColorF::Blue),
 		&brushArray[0]
@@ -296,7 +283,7 @@ void updateVisualization(RVO::RVOSimulator *sim)
 		D2D1::ColorF(D2D1::ColorF::Red),
 		&brushArray[1]
 		);
-	/*
+	
 	app.m_pRenderTarget->CreateSolidColorBrush(
 		D2D1::ColorF(D2D1::ColorF::Green),
 		&brushArray[2]
@@ -305,7 +292,7 @@ void updateVisualization(RVO::RVOSimulator *sim)
 		D2D1::ColorF(D2D1::ColorF::Purple),
 		&brushArray[3]
 		);
-	*/
+	
 
 
 	/* Output the current position of all the agents. */
@@ -315,12 +302,12 @@ void updateVisualization(RVO::RVOSimulator *sim)
 			1.2f,
 			1.2f
 			);
-		
+		/*
 		if (0 == i % 2)
 		    app.m_pCompatibleRenderTarget->FillEllipse(ellipse, brushArray[0]);
 		else if (1 == i % 2)
 			app.m_pCompatibleRenderTarget->FillEllipse(ellipse, brushArray[1]);
-		/*
+		*/
 		if (0 == i % 4)
 			app.m_pCompatibleRenderTarget->FillEllipse(ellipse, brushArray[0]);
 		else if (1 == i % 4)
@@ -329,11 +316,11 @@ void updateVisualization(RVO::RVOSimulator *sim)
 			app.m_pCompatibleRenderTarget->FillEllipse(ellipse, brushArray[2]);
 		else if (3 == i % 4)
 			app.m_pCompatibleRenderTarget->FillEllipse(ellipse, brushArray[3]);
-			*/
+		
 	}
 
 	//draw obstacles 
-	
+	/*
 	static ID2D1SolidColorBrush* pBlackBrush = nullptr ;
 	app.m_pRenderTarget->CreateSolidColorBrush(
 		D2D1::ColorF(D2D1::ColorF::Black),
@@ -391,7 +378,7 @@ void updateVisualization(RVO::RVOSimulator *sim)
 		pBlackBrush,
 		1.0f
 		);
-		
+		*/
 	
 	//copy off-screen buffer to on-screen buffer
 	D2D1_POINT_2U pt{ 0, 0 };
@@ -418,7 +405,7 @@ void setPreferredVelocities(RVO::RVOSimulator *sim)
 		RVO::Vector2 goalVector = goals[i] - sim->getAgentPosition(i);
 
 		if (RVO::absSq(goalVector) > 1.0f) {
-			goalVector = RVO::normalize(goalVector);
+			goalVector = RVO::normalize(goalVector) * sim->getAgentMaxSpeed(i);
 		}
 
 		sim->setAgentPrefVelocity(i, goalVector);
@@ -454,6 +441,7 @@ int WINAPI WinMain(
 	int /* nCmdShow */
 	)
 {
+	using namespace std::placeholders;
 	HeapSetInformation(NULL, HeapEnableTerminationOnCorruption, NULL, 0);
 	/* Set up the scenario. */
 	setupScenario(sim);
@@ -478,9 +466,11 @@ int WINAPI WinMain(
 					dmap.seeForward();
 					sim->doStep();
 					dmap.CalcDensity();
+					dmap.VelFromDensity(std::bind(&DensityMap::modelFunc1, &dmap, _1));
 					clock2.GetUpdateElaspedTime();
-					updateVisualization(sim);
 					++frameCount;
+					updateVisualization(sim);
+					
 				}
 			}
 		}
