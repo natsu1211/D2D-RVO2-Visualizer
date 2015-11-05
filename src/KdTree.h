@@ -171,6 +171,9 @@ namespace RVO {
 		 */
 		void computeAgentNeighbors(Agent *agent, float &rangeSq) const;
 
+		//rangesq = 4, for density computation
+		size_t CountAgentNeighbors(Agent *agent, float rangeSq);
+
 		/**
 		 * \brief      Computes the obstacle neighbors of the specified agent.
 		 * \param      agent           A pointer to the agent for which obstacle
@@ -188,6 +191,8 @@ namespace RVO {
 
 		void queryAgentTreeRecursive(Agent *agent, float &rangeSq,
 									 size_t node) const;
+
+		void queryAgentTreeRecursive2(Agent *agent, float &rangeSq,size_t node) ;
 
 		void queryObstacleTreeRecursive(Agent *agent, float rangeSq,
 										const ObstacleTreeNode *node) const;

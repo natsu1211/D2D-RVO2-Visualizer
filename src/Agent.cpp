@@ -59,7 +59,7 @@
 #include "Obstacle.h"
 
 namespace RVO {
-	Agent::Agent(RVOSimulator *sim) : maxNeighbors_(0), maxSpeed_(0.0f), neighborDist_(0.0f), radius_(0.0f), sim_(sim), timeHorizon_(0.0f), timeHorizonObst_(0.0f), id_(0) { }
+	Agent::Agent(RVOSimulator *sim) : maxNeighbors_(0), maxSpeed_(0.0f), neighborDist_(0.0f), radius_(0.0f), sim_(sim), timeHorizon_(0.0f), timeHorizonObst_(0.0f), id_(0), turnRight_(true), densityValue_(0), neighborsCount_(0){}
 
 	void Agent::computeNeighbors()
 	{
@@ -74,6 +74,14 @@ namespace RVO {
 			sim_->kdTree_->computeAgentNeighbors(this, rangeSq);
 		}
 	}
+
+	void Agent::countNeighbors()
+	{
+		//float rangeSq = 4.f;
+		sim_->kdTree_->CountAgentNeighbors(this, 4.0f);
+	}
+
+	
 
 	/* Search for the best new velocity. */
 	void Agent::computeNewVelocity()

@@ -276,6 +276,12 @@ namespace RVO {
 		queryAgentTreeRecursive(agent, rangeSq, 0);
 	}
 
+	size_t KdTree::CountAgentNeighbors(Agent *agent, float rangeSq)
+	{
+		queryAgentTreeRecursive2(agent, rangeSq, 0);
+		return agent->neighborsCount_;
+	}
+
 	void KdTree::computeObstacleNeighbors(Agent *agent, float rangeSq) const
 	{
 		queryObstacleTreeRecursive(agent, rangeSq, obstacleTree_);
@@ -295,6 +301,41 @@ namespace RVO {
 		if (agentTree_[node].end - agentTree_[node].begin <= MAX_LEAF_SIZE) {
 			for (size_t i = agentTree_[node].begin; i < agentTree_[node].end; ++i) {
 				agent->insertAgentNeighbor(agents_[i], rangeSq);
+			}
+		}
+		else {
+			const float distSqLeft = sqr(std::max(0.0f, agentTree_[agentTree_[node].left].minX - agent->position_.x())) + sqr(std::max(0.0f, agent->position_.x() - agentTree_[agentTree_[node].left].maxX)) + sqr(std::max(0.0f, agentTree_[agentTree_[node].left].minY - agent->position_.y())) + sqr(std::max(0.0f, agent->position_.y() - agentTree_[agentTree_[node].left].maxY));
+
+			const float distSqRight = sqr(std::max(0.0f, agentTree_[agentTree_[node].right].minX - agent->position_.x())) + sqr(std::max(0.0f, agent->position_.x() - agentTree_[agentTree_[node].right].maxX)) + sqr(std::max(0.0f, agentTree_[agentTree_[node].right].minY - agent->position_.y())) + sqr(std::max(0.0f, agent->position_.y() - agentTree_[agentTree_[node].right].maxY));
+
+			if (distSqLeft < distSqRight) {
+				if (distSqLeft < rangeSq) {
+					queryAgentTreeRecursive(agent, rangeSq, agentTree_[node].left);
+
+					if (distSqRight < rangeSq) {
+						queryAgentTreeRecursive(agent, rangeSq, agentTree_[node].right);
+					}
+				}
+			}
+			else {
+				if (distSqRight < rangeSq) {
+					queryAgentTreeRecursive(agent, rangeSq, agentTree_[node].right);
+
+					if (distSqLeft < rangeSq) {
+						queryAgentTreeRecursive(agent, rangeSq, agentTree_[node].left);
+					}
+				}
+			}
+
+		}
+	}
+
+	void KdTree::queryAgentTreeRecursive2(Agent *agent, float &rangeSq, size_t node)
+	{
+		if (agentTree_[node].end - agentTree_[node].begin <= MAX_LEAF_SIZE) {
+			for (size_t i = agentTree_[node].begin; i < agentTree_[node].end; ++i) {
+				//agent->insertAgentNeighbor(agents_[i], rangeSq);
+				agent->neighborsCount_ += 1;
 			}
 		}
 		else {

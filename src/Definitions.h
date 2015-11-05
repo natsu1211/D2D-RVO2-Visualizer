@@ -71,7 +71,7 @@
 /**
  * \brief       A sufficiently small positive number.
  */
-const float RVO_EPSILON = 0.00001f;
+//const float RVO_EPSILON = 0.00001f;
 
 namespace RVO {
 	class Agent;

@@ -58,6 +58,9 @@
 #include "Agent.h"
 #include "KdTree.h"
 #include "Obstacle.h"
+#include <algorithm> 
+#include <cmath>
+#include <iostream>
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -186,24 +189,54 @@ namespace RVO {
 	void RVOSimulator::doStep()
 	{
 		kdTree_->buildAgentTree();
+		
 
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-		for (int i = 0; i < static_cast<int>(agents_.size()); ++i) {
+		for (int i = 0; i < static_cast<int>(agents_.size()); ++i) 
+		{
 			agents_[i]->computeNeighbors();
 			agents_[i]->computeNewVelocity();
 		}
 
+		/*
+		for (int i = 0; i < static_cast<int>(agents_.size()); ++i)
+		{
+			agents_[i]->countNeighbors();
+			CalcDensityKDTree(i);
+			correctPrefVelocity(i);
+		}
+
+		for (int i = 0; i < static_cast<int>(agents_.size()); ++i)
+		{
+			agents_[i]->computeNewVelocity();
+		}
+		*/
+
+//#ifdef _OPENMP
+//#pragma omp parallel for
+//#endif
+//		for (int i = 0; i < static_cast<int>(agents_.size()); ++i)
+//		{
+//			//agents_[i]->computeNeighbors();
+//			agents_[i]->computeNewVelocity();
+//		}
+
+
+
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-		for (int i = 0; i < static_cast<int>(agents_.size()); ++i) {
+		for (int i = 0; i < static_cast<int>(agents_.size()); ++i) 
+		{
 			agents_[i]->update();
 		}
 
 		globalTime_ += timeStep_;
 	}
+
+	
 
 	size_t RVOSimulator::getAgentAgentNeighbor(size_t agentNo, size_t neighborNo) const
 	{
@@ -253,6 +286,11 @@ namespace RVO {
 	const Vector2 &RVOSimulator::getAgentPosition(size_t agentNo) const
 	{
 		return agents_[agentNo]->position_;
+	}
+
+	const Vector2 &RVOSimulator::getMapPosition(size_t agentNo) const
+	{
+		return agents_[agentNo]->mapPosition_;
 	}
 
 	const Vector2 &RVOSimulator::getAgentPrefVelocity(size_t agentNo) const
@@ -360,7 +398,7 @@ namespace RVO {
 		agents_[agentNo]->position_ = position;
 	}
 
-	void RVOSimulator::setAgentPrefVelocity(size_t agentNo, const Vector2 &prefVelocity)
+	void RVOSimulator::setAgentPrefVelocity(size_t agentNo, const Vector2 prefVelocity)
 	{
 		agents_[agentNo]->prefVelocity_ = prefVelocity;
 	}
@@ -389,4 +427,61 @@ namespace RVO {
 	{
 		timeStep_ = timeStep;
 	}
+
+	void RVOSimulator::CalcDensityKDTree(size_t agentNo)
+	{
+		agents_[agentNo]->densityValue_ = double(agents_[agentNo]->neighborsCount_) / (4 * 3.14159265358979323846f);
+		//return agents_[agentNo]->densityValue_;
+	}
+
+	void RVOSimulator::correctPrefVelocity(size_t i)
+	{
+
+		setAgentMaxSpeed(i, std::min(1.272*pow(agents_[i]->densityValue_, -0.7954), 1.4));
+		//if (agents_[i]->densityValue_  == 0)
+		//{
+			double dist = -1.0;
+			double minFactor = 10000000.0;
+			double minAng = 0;
+			for (double ang = -75; ang <= 75; ang += 15)
+			{
+				for (auto& neighbor : (agents_[i]->agentNeighbors_))
+				{
+					//minsik sum of radius 
+					if (dist = Intersect(agents_[i]->position_, normalize(Rotate(getAgentVelocity(i) - neighbor.second->velocity_, ang)), neighbor.second->position_, agents_[i]->radius_ + neighbor.second->radius_))
+					{
+						agents_[i]->CollisionDistVec_.push_back(dist);
+					}
+				}
+				double dSum = 0;
+				for (auto d : agents_[i]->CollisionDistVec_)
+				{
+					dSum += d;
+				}
+				
+				double factor = 0.0;
+
+				if (agents_[i]->CollisionDistVec_.empty())
+				{
+					factor = cos(ang / 180 * pi);
+					//factor = 1/dSum;
+				}
+				else
+				{
+					factor = (1 + agents_[i]->CollisionDistVec_.size() / dSum)*cos(ang / 180 * pi);
+				}
+
+				if (factor < minFactor)
+				{
+					minAng = ang;
+					minFactor = factor;
+				}
+
+			}
+			agents_[i]->CollisionDistVec_.clear();
+			setAgentPrefVelocity(i, normalize(Rotate(getAgentVelocity(i), minAng)));
+		//}
+		
+	}
+
 }

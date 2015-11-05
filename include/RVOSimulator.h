@@ -335,7 +335,7 @@ namespace RVO {
 		 *             agent.
 		 */
 		const Vector2 &getAgentPosition(size_t agentNo) const;
-
+		const Vector2 &getMapPosition(size_t agentNo) const;
 		/**
 		 * \brief      Returns the two-dimensional preferred velocity of a
 		 *             specified agent.
@@ -549,7 +549,7 @@ namespace RVO {
 		 * \param      prefVelocity    The replacement of the two-dimensional
 		 *                             preferred velocity.
 		 */
-		void setAgentPrefVelocity(size_t agentNo, const Vector2 &prefVelocity);
+		void setAgentPrefVelocity(size_t agentNo, const Vector2 prefVelocity);
 
 		/**
 		 * \brief      Sets the radius of a specified agent.
@@ -597,6 +597,12 @@ namespace RVO {
 		 *                             Must be positive.
 		 */
 		void setTimeStep(float timeStep);
+	public:
+	   // inline void setTurnRight(size_t agentNo, bool turnright);
+		//inline bool getTurnRight(size_t agentNo);
+		void CalcDensityKDTree(size_t agentNo);
+		//inline float CalcDensityVoronoi(size_t agentNo);
+		void correctPrefVelocity(size_t i);
 		
 	private:
 		std::vector<Agent *> agents_;

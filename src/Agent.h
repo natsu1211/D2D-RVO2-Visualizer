@@ -81,6 +81,10 @@ namespace RVO {
 		 */
 		void computeNeighbors();
 
+		//todo
+		void countNeighbors();
+		//void correctPrefVelocity(size_t);
+
 		/**
 		 * \brief      Computes the new velocity of this agent.
 		 */
@@ -126,12 +130,17 @@ namespace RVO {
 		Vector2 velocity_;
 
 		size_t id_;
+		bool turnRight_;
+		//todo, initial
+		float densityValue_;
+		size_t neighborsCount_;
+		std::vector <double> CollisionDistVec_;
+		
 
 		friend class KdTree;
 		friend class RVOSimulator;
 		friend class DensityMap;
 	};
-
 	/**
 	 * \relates    Agent
 	 * \brief      Solves a one-dimensional linear program on a specified line
