@@ -387,7 +387,7 @@ namespace RVO {
 		return 0.0;
 	}
 	//positive theta means clock-wise rotation, which is different to the common usage
-	inline Vector2 Rotate(const Vector2 &vec, int theta)
+	inline Vector2 Rotate(const Vector2 &vec, double theta)
 	{
 		double rad = theta / 180 * pi;
 		return (Vector2::Vector2(vec.x()*cos(rad) + vec.y()*sin(rad), -vec.x()*sin(rad) + vec.y()*cos(rad)));
