@@ -3,11 +3,12 @@
 #include <cmath>
 #include <algorithm>    // std::max
 #include "Vector2.h"
+#include <fstream>
 
 
 extern RVO::RVOSimulator *sim;
 using namespace RVO;
-
+std::ofstream fileOut2;
 
 void DensityMap::VelFromDensity(std::function<float(float)> velFunc)
 {
@@ -71,7 +72,7 @@ void DensityMap::seeForward()
 			{
 				//posotion 5s later
 				Vector2 newPos = sim->getAgentPosition(i) + Rotate(sim->getAgentVelocity(i), ang)*5.0f;
-				float newDensityFactor = (DMap[static_cast<int>(newPos.y() / gridLength) - 1 + 240 / gridLength][static_cast<int>(newPos.x() / gridLength) - 1 + 320 / gridLength]) / (gridLength*gridLength) / cos(ang / 180 * pi);
+				float newDensityFactor = (DMap[static_cast<int>(newPos.y() / gridLength) - 1 + 240 / gridLength][static_cast<int>(newPos.x() / gridLength) - 1 + 320 / gridLength]) / (gridLength*gridLength) * (1 + std::abs(sin(ang / 180 * pi)));
 
 				if (newDensityFactor < minDensityFactor)
 				{
@@ -83,6 +84,9 @@ void DensityMap::seeForward()
 		}
 		if (minDAng != 100000)
 			sim->setAgentPrefVelocity(i, normalize(Rotate(sim->getAgentVelocity(i), minDAng)));
+		//fileOut2.open("d://blockAng2.txt", std::ofstream::app);
+		//fileOut2 << minDAng << " " << minDensityFactor << std::endl;
+		//fileOut2.close();
 
 	}
 
