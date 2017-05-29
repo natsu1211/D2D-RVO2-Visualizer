@@ -1,4 +1,4 @@
-D2DRVO2Render
+D2D-RVO2-Visualizer
 =============
 ### Description
 D2D-RVO2-Visualizer is a visualizer of RVO2 library based on Microsoft Direct2D for study purpose. 
